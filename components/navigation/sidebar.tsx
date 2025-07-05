@@ -17,6 +17,8 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { BookOpen, CheckSquare, Coins, AlertTriangle, Trophy, Settings, LogOut, Sun, Moon } from "lucide-react"
 import { LanguageToggle } from "@/components/ui/language-toggle"
 import { useTranslation } from "@/lib/i18n"
+import { useAuth } from "@/hooks/use-auth"
+import { useRouter } from "next/navigation"
 import type { User } from "@/types"
 
 interface AppSidebarProps {
@@ -30,6 +32,8 @@ export function AppSidebar({ user, onLanguageChange, isDarkMode, onThemeToggle }
   const pathname = usePathname()
   const language = user.language === "en" || user.language === "sw" ? user.language : "en"
   const { t } = useTranslation(language)
+  const { logout } = useAuth()
+  const router = useRouter()
 
   const navigationItems = [
     {
@@ -58,6 +62,11 @@ export function AppSidebar({ user, onLanguageChange, isDarkMode, onThemeToggle }
       icon: Trophy,
     },
   ]
+
+  const handleSignOut = () => {
+    logout()
+    router.push("/")
+  }
 
   return (
     <Sidebar>
@@ -100,12 +109,19 @@ export function AppSidebar({ user, onLanguageChange, isDarkMode, onThemeToggle }
           </Button>
         </div>
 
-        <Button variant="ghost" size="sm" className="w-full justify-start flex items-center gap-2 px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-          <Settings className="h-5 w-5" />
-          <span className="text-base font-medium">Settings</span>
-        </Button>
+        <Link href="/dashboard/settings" passHref legacyBehavior>
+          <a className="w-full justify-start flex items-center gap-2 px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors inline-flex">
+            <Settings className="h-5 w-5" />
+            <span className="text-base font-medium">Settings</span>
+          </a>
+        </Link>
 
-        <Button variant="ghost" size="sm" className="w-full justify-start text-red-600 flex items-center gap-2 px-3 py-2 rounded-md hover:bg-red-100 dark:hover:bg-red-700 transition-colors">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="w-full justify-start text-red-600 flex items-center gap-2 px-3 py-2 rounded-md hover:bg-red-100 dark:hover:bg-red-700 transition-colors"
+          onClick={handleSignOut}
+        >
           <LogOut className="h-5 w-5" />
           <span className="text-base font-medium">Sign Out</span>
         </Button>
