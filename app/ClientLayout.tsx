@@ -1,6 +1,6 @@
 "use client"
 
-import type React from "react"
+import React from "react"
 
 import { Inter } from "next/font/google"
 import { usePathname } from "next/navigation"
@@ -8,7 +8,6 @@ import { AuthProvider } from "@/hooks/use-auth"
 import { NotificationProvider } from "@/components/ui/notification-system"
 import { Toaster } from "@/components/ui/toaster"
 import { useAuth } from "@/hooks/use-auth"
-import { useEffect } from "react"
 import { useRouter } from "next/navigation"
 
 const inter = Inter({ subsets: ["latin"] })
@@ -18,7 +17,7 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter()
   const pathname = usePathname()
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (isLoading) return
 
     const isPublicRoute = pathname === "/" || pathname === "/test/sms"
@@ -50,6 +49,37 @@ export default function ClientLayout({
 }: {
   children: React.ReactNode
 }) {
+  React.useEffect(() => {
+    if (!(window as any).chatbase || (window as any).chatbase("getState") !== "initialized") {
+      (window as any).chatbase = (...args: any[]) => {
+        if (!(window as any).chatbase.q) {
+          (window as any).chatbase.q = []
+        }
+        (window as any).chatbase.q.push(args)
+      }
+      (window as any).chatbase = new Proxy((window as any).chatbase, {
+        get(target, prop) {
+          if (prop === "q") {
+            return target.q
+          }
+          return (...args: any[]) => target(prop, ...args)
+        },
+      })
+      const onLoad = () => {
+        const script = document.createElement("script")
+        script.src = "https://www.chatbase.co/embed.min.js"
+        script.id = "MHlmESSHWrjJn7znusfsr"
+        script.setAttribute("domain", "www.chatbase.co")
+        document.body.appendChild(script)
+      }
+      if (document.readyState === "complete") {
+        onLoad()
+      } else {
+        window.addEventListener("load", onLoad)
+      }
+    }
+  }, [])
+
   return (
     <AuthProvider>
       <NotificationProvider>
