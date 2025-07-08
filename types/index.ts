@@ -10,6 +10,8 @@ export interface User {
   streak: number
   achievements: string[]
   completedLessons: string[]
+  completedTasks: string[]
+  onboarded: boolean
   createdAt: string
   updatedAt: string
 }
