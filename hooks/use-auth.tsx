@@ -2,24 +2,7 @@
 
 import React from "react"
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
-
-interface User {
-  id: string
-  phone: string
-  name?: string
-  age?: string
-  county?: string
-  interests?: string[]
-  experience?: string
-  isAuthenticated: boolean
-  onboardingCompleted: boolean
-  createdAt: string
-  achievements: string[]
-  tokens: number
-  xp: number
-  level: number
-  language?: "en" | "sw"
-}
+import type { User } from "@/types/index"
 
 interface AuthContextType {
   user: User | null
@@ -41,9 +24,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (savedUser) {
       try {
         const userData = JSON.parse(savedUser)
-        // Ensure achievements is always an array
+        // Map onboardingCompleted to onboarded if needed
         if (userData && typeof userData === "object") {
           userData.achievements = Array.isArray(userData.achievements) ? userData.achievements : ["first_login"]
+          if (userData.onboardingCompleted !== undefined) {
+            userData.onboarded = userData.onboardingCompleted
+            delete userData.onboardingCompleted
+          }
           setUser(userData)
         }
       } catch (error) {
@@ -55,10 +42,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const login = (userData: User) => {
-    // Ensure achievements is always an array
+    // Map onboardingCompleted to onboarded if needed
     const userWithAchievements = {
       ...userData,
       achievements: Array.isArray(userData.achievements) ? userData.achievements : ["first_login"],
+      onboarded: (userData as any).onboardingCompleted ?? userData.onboarded,
     }
     setUser(userWithAchievements)
     localStorage.setItem("civichero_user", JSON.stringify(userWithAchievements))
@@ -75,8 +63,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const updatedUser = {
       ...user,
       ...userData,
-      // Ensure achievements is always an array
       achievements: Array.isArray(userData.achievements) ? userData.achievements : user.achievements || ["first_login"],
+      onboarded: (userData as any).onboardingCompleted ?? userData.onboarded ?? user.onboarded,
     }
     setUser(updatedUser)
     localStorage.setItem("civichero_user", JSON.stringify(updatedUser))
