@@ -23,7 +23,10 @@ interface VoiceAssistantProps {
   onComplete: () => void
   isVoiceEnabled: boolean
   isSpeechEnabled: boolean
+  language: "en" | "sw"
 }
+
+
 
 const KENYAN_COUNTIES = [
   "Baringo",
@@ -100,6 +103,7 @@ export function VoiceAssistant({
   onComplete,
   isVoiceEnabled,
   isSpeechEnabled,
+  language,
 }: VoiceAssistantProps) {
   const [isListening, setIsListening] = useState(false)
   const [transcript, setTranscript] = useState("")
@@ -107,7 +111,7 @@ export function VoiceAssistant({
   const recognitionRef = useRef<any>(null)
   const synthRef = useRef<any>(null)
 
-  const steps = [
+  const stepsEn = [
     {
       title: "What's your name?",
       description: "Tell us your full name so we can personalize your experience",
@@ -147,13 +151,55 @@ export function VoiceAssistant({
     },
   ]
 
+  const stepsSw = [
+    {
+      title: "Jina lako nani?",
+      description: "Tujulishe jina lako kamili ili tuweze kubinafsisha uzoefu wako",
+      field: "name",
+      type: "text",
+      prompt: "Habari! Karibu CivicHero. Jina lako kamili ni nani?",
+    },
+    {
+      title: "Una umri gani?",
+      description: "Hii inatusaidia kutoa maudhui yanayofaa umri wako",
+      field: "age",
+      type: "number",
+      prompt: "Nashukuru kukutana nawe! Una umri gani?",
+    },
+    {
+      title: "Unatoka kaunti gani?",
+      description: "Tutakuonyesha fursa za kiraia za eneo lako",
+      field: "county",
+      type: "select",
+      options: KENYAN_COUNTIES,
+      prompt: "Unatoka kaunti gani nchini Kenya?",
+    },
+    {
+      title: "Unapenda nini zaidi?",
+      description: "Chagua maeneo ya ushiriki wa kiraia unayopenda",
+      field: "interests",
+      type: "multiselect",
+      options: INTEREST_OPTIONS,
+      prompt: "Ni maeneo gani ya ushiriki wa kiraia unayopenda zaidi? Unaweza kuchagua zaidi ya moja.",
+    },
+    {
+      title: "Tuambie kuhusu uzoefu wako",
+      description: "Je umeshiriki katika ushirikiano wa kijamii?",
+      field: "experience",
+      type: "textarea",
+      prompt: "Je, una uzoefu wowote wa awali wa ushiriki wa kiraia au ushirikiano wa jamii? Tuambie kuhusu hilo.",
+    },
+  ]
+
+  const steps = language === "sw" ? stepsSw : stepsEn
+
   useEffect(() => {
     if (typeof window !== "undefined" && "webkitSpeechRecognition" in window) {
       const SpeechRecognition = (window as any).webkitSpeechRecognition
       recognitionRef.current = new SpeechRecognition()
       recognitionRef.current.continuous = false
       recognitionRef.current.interimResults = false
-      recognitionRef.current.lang = "en-US"
+      recognitionRef.current.lang = language === "sw" ? "sw-KE" : "en-US"
 
       recognitionRef.current.onresult = (event: any) => {
         const result = event.results[0][0].transcript
@@ -174,7 +220,7 @@ export function VoiceAssistant({
     if (isSpeechEnabled) {
       speakText(steps[currentStep].prompt)
     }
-  }, [currentStep, isSpeechEnabled])
+  }, [currentStep, isSpeechEnabled, language])
 
   const speakText = (text: string) => {
     if (!isSpeechEnabled || !synthRef.current) return
@@ -183,6 +229,7 @@ export function VoiceAssistant({
     synthRef.current.cancel()
 
     const utterance = new SpeechSynthesisUtterance(text)
+    utterance.lang = language === "sw" ? "sw-KE" : "en-US"
     utterance.rate = 0.9
     utterance.pitch = 1
     utterance.volume = 0.8
