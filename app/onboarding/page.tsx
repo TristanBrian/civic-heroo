@@ -85,6 +85,7 @@ export default function OnboardingPage() {
   const { user, updateUser, logout, isLoading } = useAuth()
   const router = useRouter()
   const [currentStep, setCurrentStep] = useState(0)
+  const [language, setLanguage] = useState<"en" | "sw">("en")
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -186,6 +187,22 @@ export default function OnboardingPage() {
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-2xl mx-auto">
+          {/* Language Selector */}
+          <div className="mb-6">
+            <label htmlFor="language" className="block mb-2 font-medium text-gray-700">
+              Select Language
+            </label>
+            <select
+              id="language"
+              value={language}
+              onChange={(e) => setLanguage(e.target.value as "en" | "sw")}
+              className="w-full p-2 border rounded-md"
+            >
+              <option value="en">English</option>
+              <option value="sw">Kiswahili</option>
+            </select>
+          </div>
+
           {/* Progress */}
           <div className="mb-8">
             <div className="flex items-center justify-between mb-2">
@@ -227,6 +244,7 @@ export default function OnboardingPage() {
             onComplete={handleComplete}
             isVoiceEnabled={isVoiceEnabled}
             isSpeechEnabled={isSpeechEnabled}
+            language={language}
           />
         </div>
       </div>
