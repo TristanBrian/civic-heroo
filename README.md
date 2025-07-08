@@ -114,6 +114,18 @@ pnpm dev
 
 ---
 
+## Recent Changes
+
+### User Type and Authentication Fixes
+
+- Updated the `User` interface usage in the authentication hook (`hooks/use-auth.tsx`) to import the canonical `User` type from `types/index.ts`.
+- Removed the local `User` interface in `use-auth.tsx` to ensure consistency across the app.
+- Added mapping logic to convert the legacy `onboardingCompleted` property to the current `onboarded` property in user state management.
+- These changes resolve TypeScript errors related to missing properties (`completedLessons`, `completedTasks`, `onboarded`, `streak`) on the `User` type.
+- Ensured that user data loaded from localStorage and updated via the `useAuth` hook correctly reflects the expected user properties used in the dashboard and other components.
+
+---
+
 ## Contribution
 
 Contributions are welcome! Please open issues or submit pull requests for bug fixes, features, or improvements.
@@ -128,8 +140,7 @@ This project is licensed under the MIT License.
 
 ## Contact
 
-For questions or support, please contact the project maintainers.
+For questions or support, please lessusbrian7@gmail.com  |  Tristan.Dev
 
 ---
 
-*Empowering Kenyan citizens through civic engagement.*
