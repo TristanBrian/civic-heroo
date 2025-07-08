@@ -93,6 +93,7 @@ export function TextToSpeech({
 
   // Split text into chunks for speech synthesis
   const splitTextIntoChunks = (inputText: string, maxLength = 160) => {
+    console.log("Splitting text into chunks for TTS")
     const sentences = inputText.match(/[^.!?]+[.!?]+[\])'"`’”]*|.+$/g) || []
     const chunks: string[] = []
     let currentChunk = ""
@@ -114,6 +115,7 @@ export function TextToSpeech({
     if (currentChunk) {
       chunks.push(currentChunk.trim())
     }
+    console.log("Chunks created:", chunks.length, chunks)
     return chunks
   }
 
@@ -134,6 +136,7 @@ export function TextToSpeech({
 
     // Event handlers
     utterance.onstart = () => {
+      console.log("Utterance started:", currentUtteranceIndex.current)
       setIsPlaying(true)
       setIsPaused(false)
       startProgressTracking()
