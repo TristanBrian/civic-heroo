@@ -51,7 +51,7 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50">
-      <div className="max-w-7xl mx-auto p-6 space-y-8">
+      <div className="max-w-screen-2xl mx-auto p-6 space-y-8">
         {/* Welcome Header */}
         <div className="text-center space-y-4">
           <div className="flex items-center justify-center space-x-2">
