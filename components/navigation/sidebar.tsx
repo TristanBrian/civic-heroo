@@ -37,6 +37,11 @@ export function AppSidebar({ user, onLanguageChange, isDarkMode, onThemeToggle }
 
   const navigationItems = [
     {
+      title: t("dashboard" as any),
+      url: "/dashboard",
+      icon: Trophy,
+    },
+    {
       title: t("learn" as any),
       url: "/dashboard/learn",
       icon: BookOpen,
