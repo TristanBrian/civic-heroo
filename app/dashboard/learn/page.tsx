@@ -12,12 +12,14 @@ import { TextToSpeech } from "@/components/audio/text-to-speech"
 import { useNotifications } from "@/components/ui/notification-system"
 import { cn } from "@/lib/utils"
 import { useAuth } from "@/hooks/use-auth"
+import { useTranslation } from "@/lib/i18n"
 
 interface Lesson {
   id: string
   title: string
   description: string
   content: string
+  swContent?: string
   difficulty: 1 | 2 | 3 | 4 | 5
   duration: number // minutes
   xpReward: number
@@ -56,6 +58,24 @@ Separation of Powers:
 Executive (President/Cabinet), Legislature (Parliament), Judiciary (Courts).
 
 Amendment Process (Art. 255-257): Rigid; requires popular referendum for key changes.`,
+    swContent:
+      `Msingi: Kanuni za msingi na muundo wa Katiba ya Kenya ya 2010.
+Mada Muhimu:
+- Utawala wa Katiba (Sura ya 2): Inatawala sheria zote.
+- Uraia wa Watu (Sura ya 1): Nguvu iko mikononi mwa wananchi kupitia demokrasia.
+
+Muundo:
+- Utangulizi: Thamani za kitaifa na matarajio.
+- Sura 18: Zinahusu uraia, haki, utawala, mahakama, ugatuzi, n.k.
+- Ratiba: Maelezo ya ziada (mfano, mipaka ya kaunti).
+
+Thamani na Kanuni za Kitaifa (Sura ya 10):
+Ujumuishaji, utawala wa sheria, heshima ya binadamu, usawa, ushiriki wa umma.
+
+Mgawanyiko wa Madaraka:
+Mtendaji (Rais/Bodi), Bunge (Bunge), Mahakama (Mahakama).
+
+Mchakato wa Marekebisho (Sura ya 255-257): Magumu; yanahitaji kura ya maoni ya umma.`,
     difficulty: 2,
     duration: 15,
     xpReward: 100,
@@ -230,12 +250,20 @@ export default function LearnPage() {
   })
 
   const [language, setLanguage] = useState<"en" | "sw">(user?.language || "en")
+  const { t } = useTranslation(language)
+
+  const [isReading, setIsReading] = useState(false)
 
   useEffect(() => {
     if (user?.language && user.language !== language) {
       setLanguage(user.language)
     }
   }, [user?.language])
+
+  // Add language toggle handler
+  const toggleLanguage = () => {
+    setLanguage((prev) => (prev === "en" ? "sw" : "en"))
+  }
 
   // Update userStats based on user data (tokens, xp, completedLessons)
   useEffect(() => {
@@ -360,10 +388,20 @@ export default function LearnPage() {
                 {selectedLesson.language === "both" ? "EN/SW" : selectedLesson.language.toUpperCase()}
               </Badge>
             </div>
-            <CardDescription>Listen to the lesson content in your preferred language</CardDescription>
-          </CardHeader>
+          <CardDescription>Listen to the lesson content in your preferred language</CardDescription>
+        </CardHeader>
           <CardContent>
-            <TextToSpeech text={selectedLesson.content} language={language} autoPlay={true} />
+            <TextToSpeech
+              key={selectedLesson.id + "-" + language + "-" + (isReading ? "reading" : "stopped")}
+              text={language === "sw" && selectedLesson.swContent ? selectedLesson.swContent : selectedLesson.content}
+              language={language}
+              autoPlay={isReading}
+            />
+            <div className="mt-4">
+              <Button onClick={() => setIsReading((prev) => !prev)} variant="outline" size="sm">
+                {isReading ? "Stop Reading Lesson Content" : "Read Lesson Content"}
+              </Button>
+            </div>
           </CardContent>
         </Card>
 
@@ -372,7 +410,9 @@ export default function LearnPage() {
             <CardTitle>Lesson Content</CardTitle>
           </CardHeader>
           <CardContent className="prose max-w-none">
-            <p className="text-gray-700 leading-relaxed">{selectedLesson.content}</p>
+            <p className="text-gray-700 leading-relaxed">
+              {language === "sw" && selectedLesson.swContent ? selectedLesson.swContent : selectedLesson.content}
+            </p>
 
             <div className="mt-8 pt-6 border-t">
               {selectedLesson.isCompleted ? (
@@ -410,11 +450,14 @@ export default function LearnPage() {
       <div className="mb-8">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-3xl font-bold mb-2">Civic Education</h1>
-            <p className="text-gray-600">Learn about your rights, responsibilities, and how government works</p>
+            <h1 className="text-3xl font-bold mb-2">{t("learn")}</h1>
+            <p className="text-gray-600">{t("learn")} about your rights, responsibilities, and how government works</p>
           </div>
 
           <div className="flex items-center gap-4">
+            <Button onClick={toggleLanguage} variant="outline" size="sm">
+              {language === "en" ? "Switch to Swahili" : "Badilisha kwenda Kiingereza"}
+            </Button>
             <div className="text-center">
               <div className="text-2xl font-bold text-blue-600">Level {userStats.level}</div>
               <div className="text-sm text-gray-500">Civic Hero</div>
